@@ -1,4 +1,4 @@
-import { Effect, Layer } from "effect";
+import { Effect, Layer, ManagedRuntime } from "effect";
 import { PokeApi } from "./poke-api";
 import { PokemonCollection } from "./pokemon-collection";
 import { BuildPokeApiUrl } from "./build-poke-api-url";
@@ -16,9 +16,9 @@ const MainLayer = Layer.mergeAll(
   PokeApiUrl.Live,
 );
 
-const runnable = program.pipe(Effect.provide(MainLayer));
+const PokemonRuntime = ManagedRuntime.make(MainLayer);
 
-const main = runnable.pipe(
+const main = program.pipe(
   Effect.catchTags({
     FetchError: () => Effect.succeed("Fetch error"),
     JsonError: () => Effect.succeed("Json error"),
@@ -26,4 +26,4 @@ const main = runnable.pipe(
   }),
 );
 
-Effect.runPromise(main).then(console.log);
+PokemonRuntime.runPromise(main).then(console.log);
